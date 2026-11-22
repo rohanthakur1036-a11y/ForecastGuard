@@ -1,0 +1,28 @@
+# ============================================================
+# render.yaml — Render.com deployment configuration
+# ForecastGuard: AI-Based Weather Forecast Bust Detection
+# ============================================================
+# This file is used by Render's "Blueprint" feature.
+# Push it to GitHub and connect the repo to Render to deploy automatically.
+#
+# ⚠ Set the following env vars in the Render dashboard after first deploy:
+#   ALLOWED_ORIGINS = https://<your-vercel-app>.vercel.app
+#
+# ⚠ The frontend is deployed to Vercel (see frontend/vercel.json).
+#   Only the backend API is deployed here.
+
+services:
+  - type: web
+    name: forecastguard-api
+    env: python
+    region: singapore          # choose region closest to your users
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: ALLOWED_ORIGINS
+        value: http://localhost:5173    # ← Update to your Vercel URL after deploy
+      - key: PYTHON_VERSION
+        value: "3.11"

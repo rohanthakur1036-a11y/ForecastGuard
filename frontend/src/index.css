@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-bg-primary: #0a0f1e;
+    --color-bg-secondary: #0d1529;
+    --color-bg-card: rgba(13, 21, 41, 0.8);
+    --color-border: rgba(56, 139, 253, 0.15);
+    --color-accent-blue: #38bdf8;
+    --color-accent-cyan: #06b6d4;
+    --color-risk-high: #ef4444;
+    --color-risk-moderate: #f59e0b;
+    --color-risk-low: #10b981;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--color-bg-primary);
+    color: #e2e8f0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+  }
+
+  #root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(10, 15, 30, 0.5);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.5);
+}
+
+/* Glass card effect */
+.glass-card {
+  background: rgba(13, 21, 41, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 139, 253, 0.12);
+  border-radius: 12px;
+}
+
+.glass-card-hover {
+  transition: all 0.2s ease;
+}
+.glass-card-hover:hover {
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.08);
+}
+
+/* Risk badge animations */
+@keyframes pulse-risk {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.risk-pulse {
+  animation: pulse-risk 2s ease-in-out infinite;
+}
+
+/* Gauge arc animation */
+@keyframes gauge-fill {
+  from { stroke-dasharray: 0 100; }
+  to { stroke-dasharray: var(--gauge-value) 100; }
+}
+
+/* Map popup overrides */
+.leaflet-popup-content-wrapper {
+  background: rgba(13, 21, 41, 0.95) !important;
+  border: 1px solid rgba(56, 139, 253, 0.3) !important;
+  color: #e2e8f0 !important;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5) !important;
+}
+.leaflet-popup-tip {
+  background: rgba(13, 21, 41, 0.95) !important;
+}
+.leaflet-container {
+  background: #0a0f1e !important;
+}
+
+/* Page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: all 0.25s ease;
+}

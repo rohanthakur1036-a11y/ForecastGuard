@@ -1,0 +1,79 @@
+name: CI — Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # ── Backend smoke-test ─────────────────────────────────────
+  test-backend:
+    name: Backend · Python 3.11
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Verify imports
+        run: python -c "import fastapi, joblib, xgboost, sklearn; print('All imports OK')"
+
+      - name: Check model artifact exists
+        run: |
+          MODEL="artifacts/forecast_bust_wg_model_v5_wg_dataset_GEFS_IMD.joblib"
+          if [ -f "$MODEL" ]; then
+            echo "Model found: $MODEL"
+          else
+            echo "WARNING: Model not found at $MODEL"
+            echo "The backend will start in degraded mode without the model."
+          fi
+
+      - name: Start backend & check /api/health
+        run: |
+          uvicorn app.main:app --host 127.0.0.1 --port 8765 &
+          sleep 15
+          curl --fail --retry 3 --retry-delay 3 http://127.0.0.1:8765/api/health
+        env:
+          ALLOWED_ORIGINS: "http://localhost:5173"
+
+  # ── Frontend build ─────────────────────────────────────────
+  build-frontend:
+    name: Frontend · Node 20 · Vite build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build (production)
+        run: npm run build
+        env:
+          # In a real Vercel deployment this is set in the Vercel dashboard.
+          # For CI we use a placeholder so the build still succeeds.
+          VITE_API_URL: "https://forecastguard-api.onrender.com"
+
+      - name: Verify dist exists
+        run: ls -lh dist/
